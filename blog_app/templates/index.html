@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>{{title}} page</h2>
+    {% if user %}
+    <p>Hello, {{user}}!</p>
+    {% else %}
+    <p>Hello, World!</p>
+    {% endif %}
+    {% for string in strings %}
+    <p>{{string}}</p>
+    {% endfor %}
+{% endblock %}
