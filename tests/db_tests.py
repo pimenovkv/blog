@@ -2,8 +2,9 @@ from blog_app import db
 from blog_app.models import Users, Posts, Comments
 
 
-def add_user(name, email, password_hash):
-    user = Users(name=name, email=email, password_hash=password_hash)
+def add_user(name, email, password):
+    user = Users(name=name, email=email)
+    user.set_password(password)
     db.session.add(user)
     try:
         db.session.commit()
@@ -101,13 +102,13 @@ def delete_all_comments():
         print(error)
 
 
-# delete_all_comments()
-# delete_all_posts()
-# delete_all_users()
+delete_all_comments()
+delete_all_posts()
+delete_all_users()
 
-add_user('tester1', 'tester1@gmail.com', '1')
-add_user('tester2', 'tester2@gmail.com', '2')
-add_user('tester3', 'tester3@gmail.com', '3')
+add_user('tester1', 'tester1@gmail.com', '111')
+add_user('tester2', 'tester2@gmail.com', '222')
+add_user('tester3', 'tester3@gmail.com', '333')
 
 print('get_users():', get_users())
 

@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 temp/
 /blog_app.db
+/tests/temp_tests.py

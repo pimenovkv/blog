@@ -5,11 +5,16 @@
     <title>{{title}} - Blog</title>
 </head>
 <body>
-    <div>Blog: <a href="/index">Home</a></div>
+    <div>
+        Blog:
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
+    </div>
     <hr>
+    {% include '_message.html' %}
     {% block content %}
     {% endblock %}
     <hr>
-    Copyright 2021
+    &copy; Copyright 2021
 </body>
 </html>
