@@ -1,8 +1,8 @@
-from blog_app import app
+from blog_app import app, db
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from blog_app.models import Users
-from blog_app.forms import LoginForm
+from blog_app.forms import LoginForm, RegistrForm
 
 
 @app.route('/')
@@ -38,3 +38,18 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:   # если пользователь уже вошел, то будет перенаправлен
+        return redirect(url_for('index'))
+    form = RegistrForm()
+    if form.validate_on_submit():   # обработка формы и валидация данных только при запросе POST
+        user = Users(name=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Redistration success!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Registration', form=form)
