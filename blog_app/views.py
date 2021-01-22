@@ -60,3 +60,15 @@ def register():
         flash('Redistration success!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Registration', form=form)
+
+
+@app.route('/user', methods=['GET', 'POST'])
+def user():
+    posts = Posts.query.filter_by(user_id=current_user.id).order_by(Posts.timestamp.desc()).all()
+    form = NewPostForm()
+    if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
+        post = Posts(title=form.title.data, body=form.body.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('user'))
+    return render_template('user.html', title='UserX', username=current_user.name, form=form, posts=posts)
