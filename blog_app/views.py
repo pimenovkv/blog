@@ -1,19 +1,26 @@
 from blog_app import app, db
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user
-from blog_app.models import Users
-from blog_app.forms import LoginForm, RegistrForm
+from blog_app.models import Users, Posts
+from blog_app.forms import LoginForm, RegistrForm, NewPostForm
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    strings = ['String 1', 'String 2', 'String 3']
     if current_user.is_anonymous:
         username = None
+        form = None
     else:
         username = current_user.name
-    return render_template('index.html', title='Home', user=username, strings=strings)
+        form = NewPostForm()
+        if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
+            post = Posts(title=form.title.data, body=form.body.data, author=current_user)
+            db.session.add(post)
+            db.session.commit()
+            return redirect(url_for('index'))
+    posts = Posts.query.order_by(Posts.timestamp.desc()).all()
+    return render_template('index.html', title='Home', username=username, form=form, posts=posts)
 
 
 @app.route('/login', methods=['GET', 'POST'])

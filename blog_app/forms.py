@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms import TextAreaField, StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length
 from blog_app.models import Users
 
 
@@ -35,3 +35,12 @@ class RegistrForm(FlaskForm):
         user = Users.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+
+class NewPostForm(FlaskForm):
+    """
+    Класс, описывающий форму написания нового поста
+    """
+    title = StringField('Title', validators=[DataRequired()])
+    body = TextAreaField('Post', validators=[DataRequired()])
+    submit = SubmitField('Submit')
