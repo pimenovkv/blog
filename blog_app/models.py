@@ -43,6 +43,16 @@ class Posts(db.Model):
     def __repr__(self):
         return f'<Post {self.title}>'
 
+    def get_comments(self):
+        return Comments.query.filter_by(post_id=self.id).order_by(Comments.timestamp.desc())
+
+    def get_comments_num(self):
+        comments_num = Comments.query.filter_by(post_id=self.id).count()
+        if comments_num is not None:
+            return comments_num
+        else:
+            return 0
+
 
 class Comments(db.Model):
     """

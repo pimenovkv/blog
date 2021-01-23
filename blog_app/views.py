@@ -1,6 +1,7 @@
-from blog_app import app, db
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user
+from werkzeug.urls import url_parse
+from blog_app import app, db
 from blog_app.models import Users, Posts
 from blog_app.forms import LoginForm, RegistrForm, NewPostForm
 
@@ -94,3 +95,17 @@ def register():
         flash('Redistration success!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Registration', form=form)
+
+
+@app.route('/like')
+def like():
+    next_page = request.args.get('next')
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('index')
+    post_id = request.args.get('post')
+    post = Posts.query.filter_by(id=post_id).first()
+    if post is None or post.user_id == current_user.id:
+        return redirect(next_page)
+    post.like_num += 1
+    db.session.commit()
+    return redirect(next_page)

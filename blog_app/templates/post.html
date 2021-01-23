@@ -1,5 +1,19 @@
 <!DOCTYPE html>
 <tr valign="top">
-    <td>{{ post.author.name }}<br>{{ post.timestamp }}</td>
-    <td><b>{{ post.title }}</b><br>{{ post.body }}</td>
+    <td>
+        {{ post.author.name }}<br>
+        {{ post.timestamp }}
+    </td>
+    <td>
+        <b>{{ post.title }}</b><br>
+        {{ post.body }}<br>
+        {% if post.user_id != current_user.id %}
+            <a href="{{ url_for('like', post=post.id, next=request.path) }}">Likes</a> {{ post.like_num }}<br>
+        {% else %}
+            Likes {{ post.like_num }}<br>
+        {% endif %}
+        {% if post.get_comments_num() %}
+            <a href="{{ url_for('index') }}">Comments</a>
+        {% endif %}
+    </td>
 </tr>
