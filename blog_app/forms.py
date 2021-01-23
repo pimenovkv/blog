@@ -44,3 +44,11 @@ class NewPostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     body = TextAreaField('Post', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class NewCommentForm(FlaskForm):
+    """
+    Класс, описывающий форму написания нового комментария к посту
+    """
+    body = TextAreaField('New comment', validators=[DataRequired()])
+    submit = SubmitField('Comment')

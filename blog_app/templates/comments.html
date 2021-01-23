@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>{{ title }} page</h2>
+    <table cellspacing="10">
+        <tr valign="top">
+            <td>
+                {{ post.author.name }}<br>
+                {{ post.timestamp }}
+            </td>
+            <td>
+                <b>{{ post.title }}</b><br>
+                {{ post.body }}<br>
+            </td>
+        </tr>
+    </table>
+    {% if form %}
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.body.label }}<br>
+                {{ form.body(cols=66, rows=4) }}<br>
+                {% for error in form.body.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.submit() }}
+            </p>
+        </form>
+    {% endif %}
+    <table cellspacing="10">
+        {% for comment in comments %}
+            {% include 'comment.html' %}
+        {% endfor %}
+    </table>
+    {% if prev_url or next_url %}
+        {% if prev_url %}
+            <a href="{{ prev_url }}">Newer comments</a>
+        {% endif %}
+        Page {{ page_idx }}
+        {% if next_url %}
+            <a href="{{ next_url }}">Older comments</a>
+        {% endif %}
+        <br>
+    {% endif %}
+    <a href="{{ back_url }}">Back</a>
+{% endblock %}

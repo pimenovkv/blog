@@ -12,8 +12,6 @@
         {% else %}
             Likes {{ post.like_num }}<br>
         {% endif %}
-        {% if post.get_comments_num() %}
-            <a href="{{ url_for('index') }}">Comments</a>
-        {% endif %}
+        <a href="{{ url_for('comments', post=post.id, next=request.path) }}">Comments {{ post.get_comments_num() }}</a>
     </td>
 </tr>
