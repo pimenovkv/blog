@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from blog_app import app, db
 from blog_app.models import Users, Posts, Comments
@@ -37,21 +37,24 @@ def index():
 @app.route('/user/<username>', methods=['GET', 'POST'])
 def user(username):
     user = Users.query.filter_by(name=username).first_or_404()
-    form = NewPostForm()
-    if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
-        post = Posts(title=form.title.data, body=form.body.data, author=user)
-        db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('user'))
+    if current_user.is_authenticated and username == current_user.name:
+        form = NewPostForm()
+        if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
+            post = Posts(title=form.title.data, body=form.body.data, author=user)
+            db.session.add(post)
+            db.session.commit()
+            return redirect(url_for('user', username=username))
+    else:
+        form = None
     page_idx = request.args.get('page', 1, type=int)
     posts = Posts.query.filter_by(user_id=user.id).order_by(Posts.timestamp.desc()) \
                 .paginate(page_idx, app.config['POSTS_PER_PAGE'], False)
     if posts.has_prev:
-        prev_url = url_for('user', page=posts.prev_num)
+        prev_url = url_for('user', username=username, page=posts.prev_num)
     else:
         prev_url = None
     if posts.has_next:
-        next_url = url_for('user', page=posts.next_num)
+        next_url = url_for('user', username=username, page=posts.next_num)
     else:
         next_url = None
     return render_template('user.html', title=username, form=form, posts=posts.items,
@@ -98,6 +101,7 @@ def register():
 
 
 @app.route('/like')
+@login_required
 def like():
     next_page = request.args.get('next')
     if not next_page or url_parse(next_page).netloc != '':
@@ -129,13 +133,17 @@ def comments():
         next_url = url_for('comments', post=post_id, page=comments.next_num, next=next_page)
     else:
         next_url = None
-    if len(comments.items) != 0 and post is not None:
+    if post is None:
+        return redirect(next_page)
+    if current_user.is_authenticated:
         form = NewCommentForm()
         if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
             comment = Comments(body=form.body.data, author=current_user, post=post)
             db.session.add(comment)
             db.session.commit()
             return redirect(url_for('comments', post=post_id, next=next_page))
-        return render_template('comments.html', title='Comments', form=form, post=post, comments=comments.items,
-                               page_idx=page_idx, back_url=next_page, prev_url=prev_url, next_url=next_url)
-    return redirect(next_page)
+    else:
+        form = None
+    return render_template('comments.html', title='Comments', form=form, post=post, comments=comments.items,
+                           page_idx=page_idx, back_url=next_page, prev_url=prev_url, next_url=next_url)
+
