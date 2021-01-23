@@ -34,17 +34,17 @@ def index():
                            page_idx=page_idx, prev_url=prev_url, next_url=next_url)
 
 
-@app.route('/user', methods=['GET', 'POST'])
-def user():
-    # posts = Posts.query.filter_by(user_id=current_user.id).order_by(Posts.timestamp.desc()).all()
+@app.route('/user/<username>', methods=['GET', 'POST'])
+def user(username):
+    user = Users.query.filter_by(name=username).first_or_404()
     form = NewPostForm()
     if form.validate_on_submit():  # обработка формы и валидация данных только при запросе POST
-        post = Posts(title=form.title.data, body=form.body.data, author=current_user)
+        post = Posts(title=form.title.data, body=form.body.data, author=user)
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('user'))
     page_idx = request.args.get('page', 1, type=int)
-    posts = Posts.query.filter_by(user_id=current_user.id).order_by(Posts.timestamp.desc()) \
+    posts = Posts.query.filter_by(user_id=user.id).order_by(Posts.timestamp.desc()) \
                 .paginate(page_idx, app.config['POSTS_PER_PAGE'], False)
     if posts.has_prev:
         prev_url = url_for('user', page=posts.prev_num)
@@ -54,7 +54,7 @@ def user():
         next_url = url_for('user', page=posts.next_num)
     else:
         next_url = None
-    return render_template('user.html', title='UserX', username=current_user.name, form=form, posts=posts.items,
+    return render_template('user.html', title=username, form=form, posts=posts.items,
                            page_idx=page_idx, prev_url=prev_url, next_url=next_url)
 
 
@@ -119,7 +119,8 @@ def comments():
     post_id = request.args.get('post')
     page_idx = request.args.get('page', 1, type=int)
     post = Posts.query.filter_by(id=post_id).first()
-    comments = Comments.query.filter_by(post_id=post_id).order_by(Comments.timestamp.desc()).paginate(page_idx, app.config['COMMENTS_PER_PAGE'], False)
+    comments = Comments.query.filter_by(post_id=post_id).order_by(Comments.timestamp.desc()) \
+                    .paginate(page_idx, app.config['COMMENTS_PER_PAGE'], False)
     if comments.has_prev:
         prev_url = url_for('comments', post=post_id, page=comments.prev_num, next=next_page)
     else:

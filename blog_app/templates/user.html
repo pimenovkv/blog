@@ -2,12 +2,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h2>{{ title }}'s user page</h2>
-    {% if username %}
-        <p>Hello, {{ username }}!</p>
-    {% else %}
-        <p>Hello, World!</p>
-    {% endif %}
+    <h2>{{ title }} user page</h2>
     {% if form %}
         <form action="" method="post" novalidate>
             {{ form.hidden_tag() }}

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <tr valign="top">
     <td>
-        {{ post.author.name }}<br>
+        <a href="{{ url_for('user', username=post.author.name) }}">{{ post.author.name }}</a><br>
         {{ post.timestamp }}
     </td>
     <td>
